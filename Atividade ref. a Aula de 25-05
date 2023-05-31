@@ -1,0 +1,106 @@
+#include <iostream>
+#include <queue>
+#include <list>
+
+struct Guiche {
+    int id;
+    std::queue<int> senhasAtendidas;
+};
+
+int main() {
+    std::list<Guiche> guiches;
+    std::queue<int> senhasGeradas;
+
+    int opcao;
+    do {
+        std::cout << "Seletor de opções:" << std::endl;
+        std::cout << "0. Sair" << std::endl;
+        std::cout << "1. Gerar senha" << std::endl;
+        std::cout << "2. Abrir guichê" << std::endl;
+        std::cout << "3. Realizar atendimento" << std::endl;
+        std::cout << "4. Listar senhas atendidas" << std::endl;
+        std::cout << "Escolha uma opção: ";
+        std::cin >> opcao;
+
+        switch (opcao) {
+            case 0:
+                if (!senhasGeradas.empty()) {
+                    std::cout << "Ainda há senhas não atendidas. O programa não pode ser encerrado." << std::endl;
+                } else {
+                    std::cout << "Encerrando o programa..." << std::endl;
+                    int totalSenhasAtendidas = 0;
+                    for (const auto& guiche : guiches) {
+                        totalSenhasAtendidas += guiche.senhasAtendidas.size();
+                    }
+                    std::cout << "Total de senhas atendidas: " << totalSenhasAtendidas << std::endl;
+                    return 0;
+                }
+                break;
+            case 1: {
+                int senha = senhasGeradas.size() + 1;
+                senhasGeradas.push(senha);
+                std::cout << "Senha gerada: " << senha << std::endl;
+                break;
+            }
+            case 2: {
+                int guicheId;
+                std::cout << "Digite o ID do guichê a ser aberto: ";
+                std::cin >> guicheId;
+
+                bool guicheExistente = false;
+                for (const auto& guiche : guiches) {
+                    if (guiche.id == guicheId) {
+                        guicheExistente = true;
+                        break;
+                    }
+                }
+
+                if (guicheExistente) {
+                    std::cout << "Guichê com o mesmo ID já existe." << std::endl;
+                } else {
+                    Guiche novoGuiche;
+                    novoGuiche.id = guicheId;
+                    guiches.push_back(novoGuiche);
+                    std::cout << "Guichê aberto com ID: " << guicheId << std::endl;
+                }
+                break;
+            }
+            case 3: {
+                int guicheId;
+                std::cout << "Digite o ID do guichê que está realizando o atendimento: ";
+                std::cin >> guicheId;
+
+                bool guicheEncontrado = false;
+                for (auto& guiche : guiches) {
+                    if (guiche.id == guicheId) {
+                        guicheEncontrado = true;
+                        if (!senhasGeradas.empty()) {
+                            int senha = senhasGeradas.front();
+                            guiche.senhasAtendidas.push(senha);
+                            senhasGeradas.pop();
+                            std::cout << "Atendimento realizado no guichê " << guiche.id << " - Senha: " << senha << std::endl;
+                        } else {
+                            std::cout << "Não há mais senhas a serem atendidas." << std::endl;
+                        }
+                        break;
+                    }
+                }
+
+                if (!guicheEncontrado) {
+                    std::cout << "Guichê não encontrado." << std::endl;
+                }
+                break;
+            }
+            case 4: {
+                std::cout << "Quantidade de senhas ainda aguardando atendimento: " << senhasGeradas.size() << std::endl;
+                std::cout << "Número de guichês abertos para atendimento: " << guiches.size() << std::endl;
+                break;
+            }
+            default:
+                std::cout << "Opção inválida. Tente novamente." << std::endl;
+                break;
+        }
+    } while (true);
+
+    return 0;
+}
